@@ -42,9 +42,6 @@ def main(args):
     output_dir = args.output_dir
     de = args.de   
     testing = args.testing
-    ger_sents_only = []
-    sign_sents = []
-    en_sents_only = []
     files = []
     error_list = [] #list of files where an error occured
 
@@ -63,7 +60,7 @@ def main(args):
         relevant_tiers = defaultdict(list) #dictionnary of tiers that are relevant for the output
         sign_words = []
         en_sents = []
-        #id: language/channel, value: tiers in this language/channel
+
 
         filename = os.fsdecode(os.path.join(input_dir, file))
 
@@ -137,6 +134,9 @@ def main(args):
         
         wordcounter = 0
         sentcounter = 0
+        ger_sents_only = []
+        sign_sents = []
+        en_sents_only = []
 
     
         
@@ -148,32 +148,33 @@ def main(args):
             #There are small mismatches in the length between English and German Translation:
             if en:
                 try:
-                    if (en_sents[sentcounter][1] >= sent[1]) and (en_sents[sentcounter][2] <= sent[2]) or (en_sents_only[-1] == '-'):
+                    if ((en_sents[sentcounter][1] >= sent[1]) and (en_sents[sentcounter][2] <= sent[2])) or (en_sents_only[-1] == '-'):
                         en_sents_only.append(en_sents[sentcounter][0])
                         sentcounter += 1
                     else:
                         en_sents_only.append('-')
                 except IndexError:
-                    print('The following file was only loaded partially due to a huge mismatch between English and German Sentences: ', file)
-                    print('English sentences: ',len(en_sents))
-                    print('German sentences: ', len(german_sents))
-                    
+                    if sentcounter == 0:
+                        en_sents_only.append('-')
+                    else:
+                        print('The following file was only loaded partially due to a huge mismatch between English and German Sentences: ', file)
+                        print('English sentences: ',len(en_sents))
+                        print('German sentences: ', len(german_sents))
             ger_sents_only.append(sent[0])
             sign_sents.append(new_sign_sent)
+        
     
-    
+        with open(os.fsdecode(os.path.join(output_dir, file[:-5] + '.sign')), 'w') as outfile:
+            outfile.write("\n".join(map(str, sign_sents)))
 
-    with open(os.fsdecode(os.path.join(output_dir, 'sign.txt')), 'w') as outfile:
-        outfile.write("\n".join(map(str, sign_sents)))
+        if de:
+            with open(os.fsdecode(os.path.join(output_dir, file[:-5] + '.de')), 'w') as outfile:
+                outfile.write("\n".join(map(str, ger_sents_only)))
 
-    if de:
-        with open(os.fsdecode(os.path.join(output_dir, 'de.txt')), 'w') as outfile:
-            outfile.write("\n".join(map(str, ger_sents_only)))
-
-    if en:
-        with open(os.fsdecode(os.path.join(output_dir, 'en.txt')), 'w') as outfile:
-            outfile.write("\n".join(map(str, en_sents_only)))
-    
+        if en:
+            with open(os.fsdecode(os.path.join(output_dir, file[:-5] + '.en')), 'w') as outfile:
+                outfile.write("\n".join(map(str, en_sents_only)))
+        
     print('There were some errors while reading the following files:')
     print(error_list)
 
