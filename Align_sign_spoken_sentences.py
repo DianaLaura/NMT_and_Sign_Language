@@ -42,13 +42,8 @@ def main(args):
     output_dir = args.output_dir
     de = args.de   
     testing = args.testing
-    glosses = defaultdict(str) #dictionary with the gloss id as key, and the corresponding gloss as value
-    token_id = defaultdict(str) # defaultdict with the token id as key, and the corresponding gloss id as value
-    german_sents = []
     ger_sents_only = []
     sign_sents = []
-    sign_words = []
-    en_sents = []
     en_sents_only = []
     files = []
     error_list = [] #list of files where an error occured
@@ -62,7 +57,12 @@ def main(args):
     
     print('Extract data...')
     for file in tqdm(files):
+        glosses = defaultdict(str) #dictionary with the gloss id as key, and the corresponding gloss as value
+        token_id = defaultdict(str) # defaultdict with the token id as key, and the corresponding gloss id as value
+        german_sents = []
         relevant_tiers = defaultdict(list) #dictionnary of tiers that are relevant for the output
+        sign_words = []
+        en_sents = []
         #id: language/channel, value: tiers in this language/channel
 
         filename = os.fsdecode(os.path.join(input_dir, file))
@@ -135,25 +135,31 @@ def main(args):
                 en_sents.append([item['value'], datetime.strptime(item['timecode_start'], '%H:%M:%S:%f') , datetime.strptime(item['timecode_end'], '%H:%M:%S:%f')])
                     
         
-    wordcounter = 0
-    sentcounter = 0
+        wordcounter = 0
+        sentcounter = 0
 
     
         
-    for sent in german_sents:
-        new_sign_sent = ""
-        while (wordcounter < len(sign_words)) and (sign_words[wordcounter][1] >= sent[1]) and (sign_words[wordcounter][2] <= sent[2]):
-            new_sign_sent += sign_words[wordcounter][0] + " "
-            wordcounter += 1
-        #There are small mismatches in the length between English and German Translation:
-        if en:
-            if ((en_sents[sentcounter][1] >= sent[1]) and (en_sents[sentcounter][2] <= sent[2])) or (en_sents_only[-1] == '-'):
-                en_sents_only.append(en_sents[sentcounter][0])
-                sentcounter += 1
-            else:
-                en_sents_only.append('-')
-        ger_sents_only.append(sent[0])
-        sign_sents.append(new_sign_sent)
+        for sent in german_sents:
+            new_sign_sent = ""
+            while (wordcounter < len(sign_words)) and (sign_words[wordcounter][1] >= sent[1]) and (sign_words[wordcounter][2] <= sent[2]):
+                new_sign_sent += sign_words[wordcounter][0] + " "
+                wordcounter += 1
+            #There are small mismatches in the length between English and German Translation:
+            if en:
+                try:
+                    if (en_sents[sentcounter][1] >= sent[1]) and (en_sents[sentcounter][2] <= sent[2]) or (en_sents_only[-1] == '-'):
+                        en_sents_only.append(en_sents[sentcounter][0])
+                        sentcounter += 1
+                    else:
+                        en_sents_only.append('-')
+                except IndexError:
+                    print('The following file was only loaded partially due to a huge mismatch between English and German Sentences: ', file)
+                    print('English sentences: ',len(en_sents))
+                    print('German sentences: ', len(german_sents))
+                    
+            ger_sents_only.append(sent[0])
+            sign_sents.append(new_sign_sent)
     
     
 
