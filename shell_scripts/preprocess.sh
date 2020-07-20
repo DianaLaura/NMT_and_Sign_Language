@@ -26,19 +26,18 @@ MOSES=$base/tools/moses-scripts/scripts
 
 for corpus in train dev test; do
 	cat $data/$corpus.$spoken | sed -e "s/\r//g" | perl $MOSES/tokenizer/normalize-punctuation.perl > $data/$corpus.normalized.$spoken
-	
 done
 
 # tokenize train, dev and test
 
 for corpus in train dev test; do
-	cat $data/$corpus.normalized.$spoken | perl $MOSES/tokenizer/tokenizer.perl -a -q -l $src > $data/$corpus.tokenized.$spoken
-	#$data/$corpus.sign > $data/$corpus.tokenized.sign #add customized tokenization script here
+	cat $data/$corpus.normalized.$spoken | perl $MOSES/tokenizer/tokenizer.perl -a -q -l $spoken > $data/$corpus.tokenized.$spoken
+	cat $data/$corpus.sign | perl ../data_loading_extraction/moses_tokenizer_sign.perl > $data/$corpus.tokenized.sign
+	
 done
-
 # clean length and ratio of train (only train!)
 
-#$MOSES/training/clean-corpus-n.perl $data/train.tokenized $src $trg $data/train.tokenized.clean
+$MOSES/training/clean-corpus-n.perl $data/train.tokenized $src $trg $data/train.tokenized.clean 1 100
 
 # learn truecase model on train (learn one model for each language)
 
