@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# This file is derived from moses.
+# This file is derived from https://github.com/bricksdont/moses-scripts/blob/master/scripts/tokenizer/tokenizer.perl
 
 use strict;
 use warnings;

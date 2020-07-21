@@ -46,12 +46,13 @@ $MOSES/recaser/train-truecaser.perl -corpus $data/train.tokenized.$spoken -model
 # apply truecase model to train, test and dev
 
 for corpus in train; do
-	$MOSES/recaser/truecase.perl -model $base/shared_models/truecase-model.$spoken < $data/$corpus.tokenized.$spoken > $data/$corpus.truecased.$spoken
+	$MOSES/recaser/truecase.perl -model $base/shared_models/truecase-model.$spoken < $data/$corpus.tokenized.clean.$spoken > $data/$corpus.truecased.$spoken
+	cat $data/$corpus.tokenized.clean.sign > $data/$corpus.truecased.sign
 done
 
 for corpus in dev test; do
-        $MOSES/recaser/truecase.perl -model $base/shared_models/truecase-model.$spoken < $data/$corpus.tokenized.$spoken > $data/$corpus.truecased.$spoken
-		
+        $MOSES/recaser/truecase.perl -model $base/shared_models/truecase-model.$spoken < $data/$corpus.tokenized.$spoken > $data/$corpus.tokenized.$spoken
+		cat $data/$corpus.tokenized.sign > $data/$corpus.truecased.sign
 done
 
 # sanity checks
