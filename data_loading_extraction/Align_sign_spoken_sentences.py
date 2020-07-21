@@ -30,6 +30,8 @@ def get_args():
     parser.add_argument("--output_dir", default=os.getcwd(), type=str, help='Path to output directory')
     parser.add_argument ("--de", default=True, help= 'variable to enable/disable the German output file')
     parser.add_argument("--en", default=True, help = 'variable to enable/disable the English output file' )
+    parser.add_argument("--sentences", default=True, help='if true, all sentences are saved in one file per language')
+    parser.add_argument("--name", default='sentences', type=str, help='name for output files if sentences = true')
     parser.add_argument("--testing", default=False, help='only uses a small subset if set True')
 
     return parser.parse_args()
@@ -42,6 +44,8 @@ def main(args):
     output_dir = args.output_dir
     de = args.de   
     testing = args.testing
+    name = args.name
+    sentences = args.sentences
     files = []
     error_list = [] #list of files where an error occured
 
@@ -114,24 +118,28 @@ def main(args):
         #extract lines from raw document
         #%f is microseconds in the datetime format, not frames. I use microseconds because it's native to datetime, and it should not cause any problems
         # when comparing timestamps
-        for item in (raw):
-            if ((item['tier'] == ger['1']) or (item['tier'] == ger['2'])):
-                german_sents.append([item['value'], datetime.strptime(item['timecode_start'], '%H:%M:%S:%f') , datetime.strptime(item['timecode_end'], '%H:%M:%S:%f')])
-                    
+        try:
+            for item in (raw):
+                if ((item['tier'] == ger['1']) or (item['tier'] == ger['2'])):
+                    german_sents.append([item['value'], datetime.strptime(item['timecode_start'], '%H:%M:%S:%f') , datetime.strptime(item['timecode_end'], '%H:%M:%S:%f')])
+                        
 
-            elif ((item['tier'] == signs['1']) or (item['tier'] == signs['2'])):
-                try:
-                    word = glosses[token_id[item['token_dom']]]
+                elif ((item['tier'] == signs['1']) or (item['tier'] == signs['2'])):
+                    try:
+                        word = glosses[token_id[item['token_dom']]]
+                        
+                    except KeyError:
+                        word = glosses[token_id[item['token_nondom']]]
                     
-                except KeyError:
-                    word = glosses[token_id[item['token_nondom']]]
+                    sign_words.append([word, datetime.strptime(item['timecode_start'], '%H:%M:%S:%f'), datetime.strptime(item['timecode_end'], '%H:%M:%S:%f')])
                 
-                sign_words.append([word, datetime.strptime(item['timecode_start'], '%H:%M:%S:%f'), datetime.strptime(item['timecode_end'], '%H:%M:%S:%f')])
-            
-            elif (en and ((item['tier'] == en['1']) or (item['tier'] == en['2']))):
-                en_sents.append([item['value'], datetime.strptime(item['timecode_start'], '%H:%M:%S:%f') , datetime.strptime(item['timecode_end'], '%H:%M:%S:%f')])
-                    
-        
+                elif (en and ((item['tier'] == en['1']) or (item['tier'] == en['2']))):
+                    en_sents.append([item['value'], datetime.strptime(item['timecode_start'], '%H:%M:%S:%f') , datetime.strptime(item['timecode_end'], '%H:%M:%S:%f')])
+
+        except KeyError:
+            error_list.append(filename)
+            continue
+
         wordcounter = 0
         sentcounter = 0
         ger_sents_only = []
@@ -162,18 +170,32 @@ def main(args):
                         print('German sentences: ', len(german_sents))
             ger_sents_only.append(sent[0])
             sign_sents.append(new_sign_sent)
-        
-    
-        with open(os.fsdecode(os.path.join(output_dir, file[:-5] + '.sign')), 'w') as outfile:
-            outfile.write("\n".join(map(str, sign_sents)))
 
-        if de:
-            with open(os.fsdecode(os.path.join(output_dir, file[:-5] + '.de')), 'w') as outfile:
-                outfile.write("\n".join(map(str, ger_sents_only)))
+        if sentences==True:
 
-        if en:
-            with open(os.fsdecode(os.path.join(output_dir, file[:-5] + '.en')), 'w') as outfile:
-                outfile.write("\n".join(map(str, en_sents_only)))
+            with open(os.fsdecode(os.path.join(output_dir + '/' + name + '.sign')), 'a') as outfile:
+                outfile.write("\n".join(map(str, sign_sents)))
+
+            if de:
+               with open(os.fsdecode(os.path.join(output_dir + '/' + name + '.de')), 'a') as outfile:
+                    outfile.write("\n".join(map(str, ger_sents_only)))
+
+            if en:
+                with open(os.fsdecode(os.path.join(output_dir + '/' + name + '.en')), 'a') as outfile:
+                    outfile.write("\n".join(map(str, en_sents_only)))
+
+
+        else: 
+            with open(os.fsdecode(os.path.join(output_dir, file[:-5] + '.sign')), 'w') as outfile:
+                outfile.write("\n".join(map(str, sign_sents)))
+
+            if de:
+                with open(os.fsdecode(os.path.join(output_dir, file[:-5] + '.de')), 'w') as outfile:
+                    outfile.write("\n".join(map(str, ger_sents_only)))
+
+            if en:
+                with open(os.fsdecode(os.path.join(output_dir, file[:-5] + '.en')), 'w') as outfile:
+                    outfile.write("\n".join(map(str, en_sents_only)))
         
     print('There were some errors while reading the following files:')
     print(error_list)
