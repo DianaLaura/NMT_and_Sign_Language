@@ -4,7 +4,7 @@ scripts=`dirname "$0"`
 base=$scripts/..
 
 
-translations=$base/translations
+translations=$4/translations
 
 mkdir -p $translations
 
@@ -24,7 +24,7 @@ num_threads=1
 OMP_NUM_THREADS=$num_threads python -m sockeye.translate \
 				-i $data/test.truecased.$src \
 				-o $translations/test.truecased.$model_name.$trg \
-				-m $base/models/$model_name \
+				-m $4/models/$model_name \
 				--beam-size 10 \
 				--length-penalty-alpha 1.0 \
 				--device-ids 0 \

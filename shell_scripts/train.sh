@@ -5,10 +5,10 @@ scripts=`dirname "$0"`
 
 src=$1
 trg=$2
-data=$3
+data=$3/Extracted_data
 base=$scripts/..
 
-mkdir -p $base/models
+mkdir -p $3/models
 
 num_threads=1
 model_name=baseline
@@ -16,11 +16,11 @@ model_name=baseline
 ##################################
 
 OMP_NUM_THREADS=$num_threads python -m sockeye.train \
-      -o $base/models/$model_name  \
+      -o $3/models/$model_name  \
 			-s $data/train.truecased.$src \
 			-t $data/train.truecased.$trg \
 			-vs $data/dev.truecased.$src \
-      -vt $base/data/dev.truecased.$trg \
+      -vt $data/dev.truecased.$trg \
       --seed=1 \
       --batch-type=word \
       --batch-size=4096 \
