@@ -6,29 +6,31 @@ scripts=`dirname "$0"`
 src=$1
 trg=$2
 data=$3/Extracted_data
+train_data=$3/prepared_data/data.version
 base=$scripts/..
 
 mkdir -p $3/models
 
+
 num_threads=1
 model_name=baseline
+
+
 
 ##################################
 
 
-
+#-s $data/train.truecased.$src \
+#-t $data/train.truecased.$trg \
 OMP_NUM_THREADS=$num_threads python -m sockeye.train \
       -o $3/models/$model_name  \
-			-s $data/train.truecased.$src \
-			-t $data/train.truecased.$trg \
+			--prepared-data $train_data\
 			-vs $data/dev.truecased.$src \
       -vt $data/dev.truecased.$trg \
-      --max-updates 100100 \
-      --device-ids=0 \
-      --decode-and-evaluate-device-id 0 \
+      --max-updates 1001000 \
       --seed=1 \
       --batch-type=word \
-      --batch-size=4096 \
+      --batch-size=3000 \
       --embed-dropout=0:0 \
       --encoder=transformer \
       --decoder=transformer \
@@ -60,5 +62,8 @@ OMP_NUM_THREADS=$num_threads python -m sockeye.train \
       --min-num-epochs=0 \
       --weight-init xavier \
       --weight-init-scale 3.0 \
-      --weight-init-xavier-factor-type avg
-      --gradient-clipping-threshold=-1
+      --weight-init-xavier-factor-type avg \
+      --gradient-clipping-threshold=1.0 \
+      --device-ids=0 \
+      --decode-and-evaluate-device-id 0 \
+      #--use-cpu \

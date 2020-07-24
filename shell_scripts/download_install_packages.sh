@@ -16,6 +16,7 @@ echo "Make sure this script is executed AFTER you have activated a virtualenv"
 CUDA_VERSION=100
 
 ## Method A: install from PyPi
+pip install mxnet-cu100
 
 wget https://raw.githubusercontent.com/awslabs/sockeye/master/requirements/requirements.gpu-cu${CUDA_VERSION}.txt
 pip install sockeye --no-deps -r requirements.gpu-cu${CUDA_VERSION}.txt
