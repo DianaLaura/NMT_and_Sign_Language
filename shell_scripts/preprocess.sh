@@ -32,7 +32,7 @@ done
 
 for corpus in train dev test; do
 	cat $data/$corpus.normalized.$spoken | perl $MOSES/tokenizer/tokenizer.perl -a -q -l $spoken > $data/$corpus.tokenized.$spoken
-	cat $data/$corpus.sign | perl ../data_loading_extraction/moses_tokenizer_sign.perl > $data/$corpus.tokenized.sign
+	cat $data/$corpus.sign | perl $base/data_loading_extraction/moses_tokenizer_sign.perl > $data/$corpus.tokenized.sign
 	
 done
 # clean length and ratio of train (only train!)
