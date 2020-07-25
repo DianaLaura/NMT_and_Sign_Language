@@ -5,8 +5,8 @@
 use strict;
 use warnings;
 
-#binmode(STDIN, ":utf8");
-#binmode(STDOUT, ":utf8");
+binmode(STDIN, ":utf8");
+binmode(STDOUT, ":utf8");
 
 while(<STDIN>)
 {
