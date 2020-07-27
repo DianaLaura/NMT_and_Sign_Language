@@ -32,7 +32,7 @@ done
 
 for corpus in train dev test; do
 	cat $data/$corpus.normalized.$spoken | perl $MOSES/tokenizer/tokenizer.perl -a -q -l $spoken > $data/$corpus.tokenized.$spoken
-	cat $data/$corpus.sign | perl moses_tokenizer_sign.perl > $data/$corpus.tokenized.sign
+	cat $data/$corpus.sign | perl moses_tokenizer_sign.perl  > $data/$corpus.tokenized.sign
 	
 done
 # clean length and ratio of train (only train!)
@@ -51,8 +51,8 @@ for corpus in train; do
 done
 
 for corpus in dev test; do
-        $MOSES/recaser/truecase.perl -model $base/shared_models/truecase-model.$spoken < $data/$corpus.tokenized.$spoken > $data/$corpus.tokenized.$spoken
-		cat $data/$corpus.tokenized.sign > $data/$corpus.truecased.sign
+	$MOSES/recaser/truecase.perl -model $base/shared_models/truecase-model.$spoken < $data/$corpus.tokenized.$spoken > $data/$corpus.truecased.$spoken
+	cat $data/$corpus.tokenized.sign > $data/$corpus.truecased.sign
 done
 
 # sanity checks
