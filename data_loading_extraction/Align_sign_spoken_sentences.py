@@ -36,9 +36,6 @@ def get_args():
 
     return parser.parse_args()
 
-def frames(dt):
-    return dt.seconds/55
-
 def main(args):
     input_dir = args.input_dir
     output_dir = args.output_dir
@@ -110,6 +107,7 @@ def main(args):
             if re.match('Englische ', item['name']):
                 en[item['participation']] = item['id']
 
+
         raw = soup.find('ilex-data').findAll('tag')
 
         
@@ -168,22 +166,24 @@ def main(args):
                         print('The following file was only loaded partially due to a huge mismatch between English and German Sentences: ', file)
                         print('English sentences: ',len(en_sents))
                         print('German sentences: ', len(german_sents))
-            ger_sents_only.append(sent[0])
-            sign_sents.append(new_sign_sent)
-
+            
+    
+            if (new_sign_sent != "") and (sentences==True):
+                ger_sents_only.append(sent[0])
+                sign_sents.append(new_sign_sent)
+        
         if sentences==True:
-
             with open(os.fsdecode(os.path.join(output_dir + '/' + name + '.sign')), 'a') as outfile:
                 outfile.write("\n".join(map(str, sign_sents)))
 
-            if de:
-               with open(os.fsdecode(os.path.join(output_dir + '/' + name + '.de')), 'a') as outfile:
+            if de==True:
+                with open(os.fsdecode(os.path.join(output_dir + '/' + name + '.de')), 'a') as outfile:
                     outfile.write("\n".join(map(str, ger_sents_only)))
 
-            if en:
+            if en==True:
                 with open(os.fsdecode(os.path.join(output_dir + '/' + name + '.en')), 'a') as outfile:
                     outfile.write("\n".join(map(str, en_sents_only)))
-
+        
 
         else: 
             with open(os.fsdecode(os.path.join(output_dir, file[:-5] + '.sign')), 'w') as outfile:

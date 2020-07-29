@@ -14,7 +14,6 @@ while(<STDIN>)
 print &tokenize($_);
 
 }
-print " ";
 
 sub tokenize
 {
