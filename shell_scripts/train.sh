@@ -8,12 +8,12 @@ trg=$2
 data=$3/Extracted_data
 train_data=$3/prepared_data/data.version
 base=$scripts/..
-
+export CUDA_VISIBLE_DEVICES=2
 mkdir -p $3/models
-
+#mkdir -p $base/temp
 
 num_threads=1
-model_name=baseline
+model_name=baseline_sign_de
 
 
 
@@ -30,7 +30,8 @@ OMP_NUM_THREADS=$num_threads python -m sockeye.train \
       --max-updates 1001000 \
       --seed=1 \
       --batch-type=word \
-      --batch-size=3000 \
+      --batch-size=500 \
+      --max-seq-len=100:100 \
       --embed-dropout=0:0 \
       --encoder=transformer \
       --decoder=transformer \
@@ -45,7 +46,6 @@ OMP_NUM_THREADS=$num_threads python -m sockeye.train \
       --transformer-dropout-act=0.1 \
       --transformer-dropout-prepost=0.1 \
       --transformer-positional-embedding-type fixed \
-      --max-seq-len=100:100 \
       --label-smoothing 0.1 \
       --weight-tying-type=src_trg_softmax \
       --num-embed 512:512 \
@@ -64,6 +64,8 @@ OMP_NUM_THREADS=$num_threads python -m sockeye.train \
       --weight-init-scale 3.0 \
       --weight-init-xavier-factor-type avg \
       --gradient-clipping-threshold=1.0 \
-      --device-ids=0 \
+      --device-ids 0 \
       --decode-and-evaluate-device-id 0 \
+      --disable-device-locking
+      #--lock-dir $base/temp
       #--use-cpu \

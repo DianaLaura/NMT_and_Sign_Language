@@ -13,14 +13,13 @@ echo "Make sure this script is executed AFTER you have activated a virtualenv"
 # install Sockeye
 
 # CUDA version on instance
-CUDA_VERSION=100
+CUDA_VERSION=101
 
 ## Method A: install from PyPi
-pip install mxnet-cu100
-
-wget https://raw.githubusercontent.com/awslabs/sockeye/master/requirements/requirements.gpu-cu${CUDA_VERSION}.txt
-pip install sockeye --no-deps -r requirements.gpu-cu${CUDA_VERSION}.txt
-rm requirements.gpu-cu${CUDA_VERSION}.txt
+pip install mxnet-cu101mkl
+wget https://raw.github.com/DianaLaura/sockeye/master/requirements/requirements.gpu-cu101.txt
+pip install sockeye --no-deps -r requirements.gpu-cu101.txt
+rm requirements.gpu-cu101.txt
 
 # install BPE library
 
