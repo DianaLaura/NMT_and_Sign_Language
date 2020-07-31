@@ -33,6 +33,7 @@ def get_args():
     parser.add_argument("--sentences", default=True, help='if true, all sentences are saved in one file per language')
     parser.add_argument("--name", default='sentences', type=str, help='name for output files if sentences = true')
     parser.add_argument("--testing", default=False, help='only uses a small subset if set True')
+    parser.add_argument("--mouth_pict", default=True, help='If set to True, it also extracts mouth gestures, and saves them together with signs in the format ".sign2"')
 
     return parser.parse_args()
 
@@ -43,6 +44,7 @@ def main(args):
     testing = args.testing
     name = args.name
     sentences = args.sentences
+    mouth_pict = args.mouth_pict
     files = []
     error_list = [] #list of files where an error occured
 
@@ -61,6 +63,7 @@ def main(args):
         relevant_tiers = defaultdict(list) #dictionnary of tiers that are relevant for the output
         sign_words = []
         en_sents = []
+        mouth_words = []
 
 
         filename = os.fsdecode(os.path.join(input_dir, file))
@@ -96,6 +99,8 @@ def main(args):
 
         en = {}
 
+        mouth = {}
+
         for item in all_tiers:
 
             if re.match('Lexem.*', item['name']):
@@ -106,6 +111,9 @@ def main(args):
             
             if re.match('Englische ', item['name']):
                 en[item['participation']] = item['id']
+
+            if re.match('Mundbild.*', item['name']):
+                mouth[item['participation']] = item['id']
 
 
         raw = soup.find('ilex-data').findAll('tag')
@@ -131,28 +139,43 @@ def main(args):
                     
                     sign_words.append([word, datetime.strptime(item['timecode_start'], '%H:%M:%S:%f'), datetime.strptime(item['timecode_end'], '%H:%M:%S:%f')])
                 
-                elif (en and ((item['tier'] == en['1']) or (item['tier'] == en['2']))):
+                if (en and ((item['tier'] == en['1']) or (item['tier'] == en['2']))):
                     en_sents.append([item['value'], datetime.strptime(item['timecode_start'], '%H:%M:%S:%f') , datetime.strptime(item['timecode_end'], '%H:%M:%S:%f')])
-
+                
+                if (mouth_pict and ((item['tier'] == mouth['1']) or (item['tier'] == mouth['2']))):
+                    mouth_words.append([item['value'], datetime.strptime(item['timecode_start'], '%H:%M:%S:%f') , datetime.strptime(item['timecode_end'], '%H:%M:%S:%f')])
         except KeyError:
             error_list.append(filename)
             continue
 
         wordcounter = 0
         sentcounter = 0
+        mouthcounter=0
         ger_sents_only = []
+        mouth_sents = []
         sign_sents = []
         en_sents_only = []
+
 
     
         
         for sent in german_sents:
             new_sign_sent = ""
+            new_mouth_sent=""
             while (wordcounter < len(sign_words)) and (sign_words[wordcounter][1] >= sent[1]) and (sign_words[wordcounter][2] <= sent[2]):
                 new_sign_sent += sign_words[wordcounter][0] + " "
+                try:
+                    if ((mouth_words[mouthcounter][1]>=sign_words[wordcounter][1]) and (mouth_words[mouthcounter][2]<=sign_words[wordcounter][2])) or (mouth_words[mouthcounter][1]<=sign_words[wordcounter][1]):
+                        new_mouth_sent += mouth_words[mouthcounter][0] + " "
+                        mouthcounter += 1
+                    else:
+                        new_mouth_sent += "<empty> "
+                except IndexError:
+                    new_mouth_sent += "<empty> "
+                
                 wordcounter += 1
             #There are small mismatches in the length between English and German Translation:
-            if en:
+            if en and sentences and (new_sign_sent != ""):
                 try:
                     if ((en_sents[sentcounter][1] >= sent[1]) and (en_sents[sentcounter][2] <= sent[2])) or (en_sents_only[-1] == '-'):
                         en_sents_only.append(en_sents[sentcounter][0])
@@ -167,20 +190,28 @@ def main(args):
                         print('English sentences: ',len(en_sents))
                         print('German sentences: ', len(german_sents))
             
-    
+
             if (new_sign_sent != "") and (sentences==True):
                 ger_sents_only.append(sent[0])
                 sign_sents.append(new_sign_sent)
+                mouth_sents.append(new_mouth_sent)
+        
         
         if sentences==True:
-            with open(os.fsdecode(os.path.join(output_dir + '/' + name + '.sign')), 'a') as outfile:
-                outfile.write("\n".join(map(str, sign_sents)))
+            if mouth_pict==True:
+                with open(os.fsdecode(os.path.join(output_dir + '/' + name + '.sign2')), 'a') as outfile:
+                    for i in range(0, len(sign_sents)):
+                        outfile.write(mouth_sents[i] + "\n")
+                        outfile.write(sign_sents[i] + "\n")
+            else:    
+                with open(os.fsdecode(os.path.join(output_dir + '/' + name + '.sign')), 'a') as outfile:
+                    outfile.write("\n".join(map(str, sign_sents)))
 
-            if de==True:
+            if de:
                 with open(os.fsdecode(os.path.join(output_dir + '/' + name + '.de')), 'a') as outfile:
                     outfile.write("\n".join(map(str, ger_sents_only)))
 
-            if en==True:
+            if en:
                 with open(os.fsdecode(os.path.join(output_dir + '/' + name + '.en')), 'a') as outfile:
                     outfile.write("\n".join(map(str, en_sents_only)))
         
