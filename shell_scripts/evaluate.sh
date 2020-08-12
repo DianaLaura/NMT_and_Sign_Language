@@ -16,13 +16,13 @@ data=$4/Extracted_data
 # cloned from https://github.com/bricksdont/moses-scripts
 MOSES=$base/tools/moses-scripts/scripts
 
-model_name=baseline
+model_name=baseline_de_sign
 num_threads=1
 
 ##########################################
 
 OMP_NUM_THREADS=$num_threads python -m sockeye.translate \
-				-i $data/test.truecased.$src \
+				-i $4/Extracted_data/test.truecased.$src \
 				-o $translations/test.truecased.$model_name.$trg \
 				-m $4/models/$model_name \
 				--beam-size 10 \

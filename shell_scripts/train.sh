@@ -13,7 +13,7 @@ mkdir -p $3/models
 #mkdir -p $base/temp
 
 num_threads=1
-model_name=baseline_sign_de
+model_name=baseline_de_sign
 
 
 
@@ -30,7 +30,7 @@ OMP_NUM_THREADS=$num_threads python -m sockeye.train \
       --max-updates 1001000 \
       --seed=1 \
       --batch-type=word \
-      --batch-size=500 \
+      --batch-size=400 \
       --max-seq-len=100:100 \
       --embed-dropout=0:0 \
       --encoder=transformer \
