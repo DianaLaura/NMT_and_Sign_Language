@@ -22,8 +22,8 @@ num_threads=1
 ##########################################
 
 OMP_NUM_THREADS=$num_threads python -m sockeye.translate \
-				-i $4/Extracted_data/test.truecased.$src \
-				-o $translations/test.truecased.$model_name.$trg \
+				-i $4/Extracted_data/test.preprocessed.$src \
+				-o $translations/test.preprocessed.$model_name.$trg \
 				-m $4/models/$model_name \
 				--beam-size 10 \
 				--length-penalty-alpha 1.0 \

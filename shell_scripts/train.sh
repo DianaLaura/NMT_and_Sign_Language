@@ -25,12 +25,13 @@ model_name=baseline_de_sign
 OMP_NUM_THREADS=$num_threads python -m sockeye.train \
       -o $3/models/$model_name  \
 			--prepared-data $train_data\
-			-vs $data/dev.truecased.$src \
-      -vt $data/dev.truecased.$trg \
+			-vs $data/dev.preprocessed.$src \
+      -vt $data/dev.preprocessed.$trg \
       --max-updates 1001000 \
       --seed=1 \
       --batch-type=word \
       --batch-size=400 \
+      --update-interval=3 \
       --max-seq-len=100:100 \
       --embed-dropout=0:0 \
       --encoder=transformer \
@@ -47,7 +48,7 @@ OMP_NUM_THREADS=$num_threads python -m sockeye.train \
       --transformer-dropout-prepost=0.1 \
       --transformer-positional-embedding-type fixed \
       --label-smoothing 0.1 \
-      --weight-tying-type=src_trg_softmax \
+      --weight-tying-type=trg_softmax \
       --num-embed 512:512 \
       --num-words 50000:50000 \
       --word-min-count 1:1 \
@@ -67,5 +68,4 @@ OMP_NUM_THREADS=$num_threads python -m sockeye.train \
       --device-ids 0 \
       --decode-and-evaluate-device-id 0 \
       --disable-device-locking
-      #--lock-dir $base/temp
       #--use-cpu \

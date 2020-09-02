@@ -12,10 +12,9 @@ model_name=baseline
 
 #Preparing data (cf. https://awslabs.github.io/sockeye/training.html)
 OMP_NUM_THREADS=$num_threads python -m sockeye.prepare_data \
-      --source $data/train.truecased.$src \
-      --target $data/train.truecased.$trg \
+      --source $data/train.preprocessed.$src \
+      --target $data/train.preprocessed.$trg \
       --output $3/prepared_data/data.version \
-      --shared-vocab \
       --max-seq-len=100:100 \
       --no-bucketing
 

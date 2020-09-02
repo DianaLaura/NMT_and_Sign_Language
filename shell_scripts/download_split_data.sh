@@ -12,12 +12,6 @@ mkdir -p $storage/DGS_corpus_dirty
 
 mkdir -p $storage/DGS_corpus
 
-mkdir -p $storage/DGS_train
-
-mkdir -p $storage/DGS_test
-
-mkdir -p $storage/DGS_dev
-
 mkdir -p $storage/Extracted_data
 
 python3 ../data_loading_extraction/download_ilex.py --output_dir $storage/DGS_corpus_dirty/
@@ -26,37 +20,55 @@ python3 ../data_loading_extraction/download_ilex.py --output_dir $storage/DGS_co
 
 cp `find $storage/DGS_corpus_dirty -type f -size +3k` $storage/DGS_corpus
 
+#extract data from ilex-files
+echo 'Extracting data:'
+python3 ../data_loading_extraction/Align_sign_spoken_sentences.py --input_dir $storage/DGS_corpus/ --output_dir $storage/Extracted_data --name 'full_set' --mouth_pict False
+
 #split into train and test set
 
-echo 'Splitting into train and test set... '
 
-testindex=`ls $storage/DGS_corpus | awk 'END {print NR*0.2} ' | awk '{print int ($1)}'`
+file_length=`wc -l $storage/Extracted_data/full_set.de | awk '{print $1}'`
 
-trainindex=`ls $storage/DGS_corpus | wc -l`
+file_length2=`expr $file_length - 2000 | awk '{print $1}'`
 
-trainindex=`expr $trainindex - $testindex`
+list_dev=($(seq 0 $file_length2 | perl -MList::Util=shuffle -E 'srand42; print shuffle(<STDIN>);'))
 
-devindex=`echo $testindex | awk 'END {print $1/2}' | awk '{print int ($1)}'`
+file_length2=`expr $file_length - 4000 | awk '{print $1}'`
 
-list=`ls $storage/DGS_corpus | perl -MList::Util=shuffle -E 'srand42; print shuffle(<STDIN>);'`  #ruby -e 'puts STDIN.readlines.shuffle(random: Random.new(42))'`
+list_test=($(seq 0 $file_length2 | perl -MList::Util=shuffle -E 'srand42; print shuffle(<STDIN>);'))
 
-cp `echo "$list" | head -$devindex | awk -v var="$storage" '{print var"/DGS_corpus/"$1}'` $storage/DGS_dev/
-
-cp `echo "$list" | tail -$trainindex | awk -v var="$storage" '{print var"/DGS_corpus/"$1}'` $storage/DGS_train/
-
-devindex=`echo $devindex | awk 'END {print $1+1}'`
-
-cp `echo "$list" | head -$testindex | tail -$devindex |  awk -v var="$storage" '{print var"/DGS_corpus/"$1}'` $storage/DGS_test/
+IFS=" "
 
 
+dev=(${list_dev[@]:0:2000})
+test=(${list_test[@]:0:2000})
 
-#extract data from ilex-files
-echo 'Extracting data from test set:'
-python3 ../data_loading_extraction/Align_sign_spoken_sentences.py --input_dir $storage/DGS_test/ --output_dir $storage/Extracted_data --name 'test'
+cat $storage/Extracted_data/full_set.de > $storage/Extracted_data/train.de
+cat $storage/Extracted_data/full_set.sign > $storage/Extracted_data/train.sign
+echo 'Sampling sets...' 
 
-echo 'Extracting data from validation set:'
+for index in "${dev[@]}" 
+do
+   
+  sed -n "${index}p" $storage/Extracted_data/train.de >> $storage/Extracted_data/dev.de
+  sed -n "${index}p" $storage/Extracted_data/train.sign >> $storage/Extracted_data/dev.sign   
+  sed -i "${index}d" $storage/Extracted_data/train.de
+  sed -i "${index}d" $storage/Extracted_data/train.sign 
 
-python3 ../data_loading_extraction/Align_sign_spoken_sentences.py --input_dir $storage/DGS_dev/ --output_dir $storage/Extracted_data --name 'dev'
+done
 
-echo 'Extracting data from train set:'
-python3 ../data_loading_extraction/Align_sign_spoken_sentences.py --input_dir $storage/DGS_train/ --output_dir $storage/Extracted_data --name 'train'
+echo 'Development set created!'
+
+for index in "${test[@]}" 
+do
+
+  sed -n "${index}p" $storage/Extracted_data/train.de >> $storage/Extracted_data/test.de
+  sed -n "${index}p" $storage/Extracted_data/train.sign >> $storage/Extracted_data/test.sign   
+  sed -i "${index}d" $storage/Extracted_data/train.de
+  sed -i "${index}d" $storage/Extracted_data/train.sign 
+
+done
+
+echo 'Test set created!'
+
+echo 'Train set created!'
