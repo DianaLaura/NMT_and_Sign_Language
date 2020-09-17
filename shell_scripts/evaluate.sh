@@ -16,7 +16,7 @@ data=$4/Extracted_data
 # cloned from https://github.com/bricksdont/moses-scripts
 MOSES=$base/tools/moses-scripts/scripts
 
-model_name=baseline_de_sign
+model_name=baseline3_de_sign
 num_threads=1
 
 ##########################################
@@ -31,7 +31,9 @@ OMP_NUM_THREADS=$num_threads python -m sockeye.translate \
 				--batch-size 16
 
 
+#undo BPE
 
+cat $translations/test.bpe.$model_name.$spoken | sed 's/\@\@ //g' > $translations/test.truecased.$model_name.$spoken
 # undo truecasing
 
 cat $translations/test.truecased.$model_name.$spoken| $MOSES/recaser/detruecase.perl > $translations/test.tokenized.$model_name.$spoken
@@ -39,7 +41,7 @@ cat $translations/test.truecased.$model_name.$spoken| $MOSES/recaser/detruecase.
 # undo tokenization
 
 cat $translations/test.tokenized.$model_name.$spoken | $MOSES/tokenizer/detokenizer.perl -l $spoken > $translations/test.$model_name.$spoken
-cat $translations/test.truecased.$model_name.sign > $translations/test.$model_name.sign
+cat $translations/test.preprocessed.$model_name.sign > $translations/test.$model_name.sign
 # compute case-sensitive BLEU on detokenized data
 
 cat $translations/test.$model_name.$trg | sacrebleu $data/test.$trg
