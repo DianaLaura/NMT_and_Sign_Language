@@ -40,7 +40,7 @@ for corpus in train dev test; do
 done
 # clean length and ratio of train (only train!)
 
-$MOSES/training/clean-corpus-n.perl $data/train.tokenized $src $trg $data/train.tokenized.clean 1 100
+$MOSES/training/clean-corpus-n.perl $data/train.tokenized $src $trg $data/train.tokenized.clean 1 120
 
 # learn truecase model on train (learn one model for each language)
 
@@ -61,8 +61,12 @@ subword-nmt learn-bpe -i $data/train.truecased.$spoken \
 	-s $bpe_num_operations -o $storage/shared_models/$spoken.bpe
 
 # apply BPE model to train, test and dev
-
-for corpus in train dev test; do
+for corpus in train; do
+	subword-nmt apply-bpe -c $storage/shared_models/$spoken.bpe --vocabulary-threshold $bpe_vocab_threshold < $data/$corpus.truecased.$spoken > $data/$corpus.bpe.$spoken
+	cat $data/$corpus.tokenized.clean.sign > $data/$corpus.preprocessed.sign
+	cat $data/$corpus.bpe.$spoken > $data/$corpus.preprocessed.$spoken
+done
+for corpus in  dev test; do
 	subword-nmt apply-bpe -c $storage/shared_models/$spoken.bpe --vocabulary-threshold $bpe_vocab_threshold < $data/$corpus.truecased.$spoken > $data/$corpus.bpe.$spoken
 	cat $data/$corpus.tokenized.sign > $data/$corpus.preprocessed.sign
 	cat $data/$corpus.bpe.$spoken > $data/$corpus.preprocessed.$spoken
