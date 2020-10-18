@@ -28,12 +28,12 @@ def get_args():
     parser = argparse.ArgumentParser(description='Parsing arguments like input path, output path, ...')
     parser.add_argument("--input_dir", required=True, type=str, help='Path to input directory')
     parser.add_argument("--output_dir", default=os.getcwd(), type=str, help='Path to output directory')
-    parser.add_argument ("--de", default=True, help= 'variable to enable/disable the German output file')
+    parser.add_argument ("--de", default=True, type=bool ,help= 'variable to enable/disable the German output file')
     parser.add_argument("--en", default=True, help = 'variable to enable/disable the English output file' )
     parser.add_argument("--sentences", default=True, help='if true, all sentences are saved in one file per language')
     parser.add_argument("--name", default='sentences', type=str, help='name for output files if sentences = true')
-    parser.add_argument("--testing", default=False, help='only uses a small subset if set True')
-    parser.add_argument("--mouth_pict", default=True, help='If set to True, it also extracts mouth gestures, and saves them together with signs in the format ".sign2"')
+    parser.add_argument("--testing", default=False, type=bool, help='only uses a small subset if set True')
+    parser.add_argument("--mouth_pict", default=True, help='If set to True, it also extracts mouthings, and save them in a separate document"')
 
     return parser.parse_args()
 
@@ -43,13 +43,14 @@ def main(args):
     de = args.de   
     testing = args.testing
     name = args.name
+    en = args.en
     sentences = args.sentences
     mouth_pict = args.mouth_pict
     files = []
     error_list = [] #list of files where an error occured
 
 
-    if testing:
+    if testing == True:
         files = random.sample(os.listdir(input_dir), 5)
     
     else:
@@ -168,12 +169,14 @@ def main(args):
                     if ((mouth_words[mouthcounter][1]>=sign_words[wordcounter][1]) and (mouth_words[mouthcounter][2]<=sign_words[wordcounter][2])) or (mouth_words[mouthcounter][1]<=sign_words[wordcounter][1]):
                         new_mouth_sent += mouth_words[mouthcounter][0] + " "
                         mouthcounter += 1
-                    else:
-                        new_mouth_sent += "<empty> "
+
+                    
                 except IndexError:
-                    new_mouth_sent += "<empty> "
-                
+                    pass
                 wordcounter += 1
+
+            while (len(new_mouth_sent.split()) < len(new_sign_sent.split())):
+                new_mouth_sent += "<empty> "
             #There are small mismatches in the length between English and German Translation:
             if en and sentences and (new_sign_sent != ""):
                 try:
@@ -191,7 +194,7 @@ def main(args):
                         print('German sentences: ', len(german_sents))
             
 
-            if (new_sign_sent != "") and (sentences==True):
+            if (new_sign_sent != ""):
                 ger_sents_only.append(sent[0])
                 sign_sents.append(new_sign_sent)
                 mouth_sents.append(new_mouth_sent)
@@ -199,32 +202,36 @@ def main(args):
         
         if sentences==True:
             if mouth_pict==True:
-                with open(os.fsdecode(os.path.join(output_dir + '/' + name + '.sign2')), 'a') as outfile:
-                    for i in range(0, len(sign_sents)):
-                        outfile.write(mouth_sents[i] + "\n")
-                        outfile.write(sign_sents[i] + "\n")
-            else:    
-                with open(os.fsdecode(os.path.join(output_dir + '/' + name + '.sign')), 'a') as outfile:
-                    outfile.write("\n".join(map(str, sign_sents)))
+                with open(os.fsdecode(os.path.join(output_dir + '/' + name + '.mouthings')), 'a') as outfile:
+                    outfile.write("\n".join(map(str, mouth_sents)))
+                    outfile.write("\n")
+                        
+               
+            with open(os.fsdecode(os.path.join(output_dir + '/' + name + '.sign')), 'a') as outfile:
+                outfile.write("\n".join(map(str, sign_sents)))
+                outfile.write("\n")
+                    
 
-            if de:
+            if de==True:
                 with open(os.fsdecode(os.path.join(output_dir + '/' + name + '.de')), 'a') as outfile:
                     outfile.write("\n".join(map(str, ger_sents_only)))
+                    outfile.write("\n")
 
-            if en:
+            if en==True:
                 with open(os.fsdecode(os.path.join(output_dir + '/' + name + '.en')), 'a') as outfile:
                     outfile.write("\n".join(map(str, en_sents_only)))
+                    outfile.write("\n")
         
 
-        else: 
+        elif sentences=="False":
             with open(os.fsdecode(os.path.join(output_dir, file[:-5] + '.sign')), 'w') as outfile:
                 outfile.write("\n".join(map(str, sign_sents)))
 
-            if de:
+            if de==True:
                 with open(os.fsdecode(os.path.join(output_dir, file[:-5] + '.de')), 'w') as outfile:
                     outfile.write("\n".join(map(str, ger_sents_only)))
 
-            if en:
+            if en==True:
                 with open(os.fsdecode(os.path.join(output_dir, file[:-5] + '.en')), 'w') as outfile:
                     outfile.write("\n".join(map(str, en_sents_only)))
         
