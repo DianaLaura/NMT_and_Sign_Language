@@ -10,7 +10,7 @@ trg=$2
 spoken=$3 #file ending of spoken language
 storage=$4
 data=`echo $storage/Extracted_data`
-bpe_num_operations=10000
+bpe_num_operations=2000
 bpe_vocab_threshold=10
 
 
@@ -40,7 +40,7 @@ for corpus in train dev test; do
 done
 # clean length and ratio of train (only train!)
 
-$MOSES/training/clean-corpus-n.perl $data/train.tokenized $src $trg $data/train.tokenized.clean 1 120
+#$MOSES/training/clean-corpus-n.perl $data/train.tokenized $src $trg $data/train.tokenized.clean 1 120
 
 # learn truecase model on train (learn one model for each language)
 

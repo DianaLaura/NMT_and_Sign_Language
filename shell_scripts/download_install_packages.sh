@@ -16,7 +16,7 @@ echo "Make sure this script is executed AFTER you have activated a virtualenv"
 CUDA_VERSION=102
 
 ## Method A: install from PyPi
-pip install mxnet-cu102mkl==1.6.post0
+pip install mxnet-cu==1.7.0
 wget https://raw.github.com/DianaLaura/sockeye/master/requirements/requirements.gpu-cu102.txt
 pip install sockeye --no-deps -r requirements.gpu-cu102.txt
 rm requirements.gpu-cu102.txt

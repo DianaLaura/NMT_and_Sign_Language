@@ -13,7 +13,7 @@ mkdir -p $3/models
 #mkdir -p $base/temp
 
 num_threads=1
-model_name=baseline_de_sign
+model_name=baseline_sign_de_baseline4
 
 
 
@@ -33,21 +33,21 @@ OMP_NUM_THREADS=$num_threads python -m sockeye.train \
       --batch-size=400 \
       --update-interval=3 \
       --max-seq-len=100:100 \
-      --embed-dropout=0:0 \
+      --embed-dropout=0.5:0.5 \
       --encoder=transformer \
       --decoder=transformer \
       --num-layers=6:6 \
-      --checkpoint-interval=4000 \
+      --checkpoint-interval=1000 \
       --transformer-model-size=512 \
       --transformer-attention-heads=8 \
       --transformer-feed-forward-num-hidden=2048 \
       --transformer-preprocess=n \
       --transformer-postprocess=dr \
-      --transformer-dropout-attention=0.1 \
-      --transformer-dropout-act=0.1 \
-      --transformer-dropout-prepost=0.1 \
+      --transformer-dropout-attention=0.5 \
+      --transformer-dropout-act=0.5\
+      --transformer-dropout-prepost=0.5 \
       --transformer-positional-embedding-type fixed \
-      --label-smoothing 0.1 \
+      --label-smoothing 0.2 \
       --weight-tying-type=trg_softmax \
       --num-embed 512:512 \
       --num-words 50000:50000 \
