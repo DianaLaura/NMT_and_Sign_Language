@@ -61,12 +61,6 @@ def main(args):
     for file in tqdm(files):
         filecounter +=1
 
-        """
-        if (filecounter == 17):
-            print("File 17: " + file)
-            break
-        """
-
         glosses = defaultdict(str) #dictionary with the gloss id as key, and the corresponding gloss as value
         token_id = defaultdict(str) # defaultdict with the token id as key, and the corresponding gloss id as value
         german_sents = []
@@ -167,21 +161,22 @@ def main(args):
         en_sents_only = []
 
 
-    
+
+        
         
         for sent in german_sents:
             new_sign_sent = ""
             new_mouth_sent=""
+            
             while (wordcounter < len(sign_words)) and (sign_words[wordcounter][1] >= sent[1]) and (sign_words[wordcounter][2] <= sent[2]):
                 new_sign_sent += sign_words[wordcounter][0] + " "
                 
-                
-
                 if mouthings==True:
                     
                     #check if any mouthings are available
-                    if (mouthcounter == len(mouth_words) -2 ):
+                    if (mouthcounter == len(mouth_words) -1):
                             new_mouth_sent += "<empty> "
+                            wordcounter += 1
                             continue
 
                     if (((mouth_words[mouthcounter][1] >= sign_words[wordcounter][1]) and (mouth_words[mouthcounter][1] <= sign_words[wordcounter][2]))) and ((mouth_words[mouthcounter + 1][1] < sign_words[wordcounter][2]) and (mouth_words[mouthcounter + 1][1] <= sign_words[wordcounter][2])):
@@ -209,7 +204,7 @@ def main(args):
 
 
             #There are small mismatches in the length between English and German Translation:
-            if en and sentences and (new_sign_sent != ""):
+            if ((en == True) and sentences and (new_sign_sent != "")):
                 try:
                     if ((en_sents[sentcounter][1] >= sent[1]) and (en_sents[sentcounter][2] <= sent[2])) or (en_sents_only[-1] == '-'):
                         en_sents_only.append(en_sents[sentcounter][0])
@@ -252,7 +247,6 @@ def main(args):
                 with open(os.fsdecode(os.path.join(output_dir + '/' + name + '.en')), 'a') as outfile:
                     outfile.write("\n".join(map(str, en_sents_only)))
                     outfile.write("\n")
-        
 
         elif sentences=="False":
             with open(os.fsdecode(os.path.join(output_dir, file[:-5] + '.sign')), 'w') as outfile:
@@ -265,6 +259,8 @@ def main(args):
             if en==True:
                 with open(os.fsdecode(os.path.join(output_dir, file[:-5] + '.en')), 'w') as outfile:
                     outfile.write("\n".join(map(str, en_sents_only)))
+        
+        
         
     print('There were some errors while reading the following files:')
     print(error_list)
