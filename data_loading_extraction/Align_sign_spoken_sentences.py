@@ -199,7 +199,8 @@ def main(args):
                             mouthcounter += 1
                 
                     else:
-                        new_mouth_sent += '<empty> '
+                        if (len(new_sign_sent.split()) > len(new_mouth_sent.split())):
+                             new_mouth_sent += '<empty> '
                 wordcounter += 1
 
 
