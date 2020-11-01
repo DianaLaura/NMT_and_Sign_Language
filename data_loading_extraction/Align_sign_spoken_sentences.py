@@ -33,7 +33,7 @@ def get_args():
     parser.add_argument("--sentences", default=True, help='if true, all sentences are saved in one file per language')
     parser.add_argument("--name", default='sentences', type=str, help='name for output files if sentences = true')
     parser.add_argument("--testing", default=False, type=bool, help='only uses a small subset if set True')
-    parser.add_argument("--mouth_pict", default=True, help='If set to True, it also extracts mouthings, and save them in a separate document"')
+    parser.add_argument("--mouthings", default=True, help='If set to True, it also extracts mouthings, and save them in a separate document"')
 
     return parser.parse_args()
 
@@ -45,9 +45,10 @@ def main(args):
     name = args.name
     en = args.en
     sentences = args.sentences
-    mouth_pict = args.mouth_pict
+    mouthings = args.mouthings
     files = []
     error_list = [] #list of files where an error occured
+    filecounter = 0
 
 
     if testing == True:
@@ -58,6 +59,14 @@ def main(args):
     
     print('Extract data...')
     for file in tqdm(files):
+        filecounter +=1
+
+        """
+        if (filecounter == 17):
+            print("File 17: " + file)
+            break
+        """
+
         glosses = defaultdict(str) #dictionary with the gloss id as key, and the corresponding gloss as value
         token_id = defaultdict(str) # defaultdict with the token id as key, and the corresponding gloss id as value
         german_sents = []
@@ -143,7 +152,7 @@ def main(args):
                 if (en and ((item['tier'] == en['1']) or (item['tier'] == en['2']))):
                     en_sents.append([item['value'], datetime.strptime(item['timecode_start'], '%H:%M:%S:%f') , datetime.strptime(item['timecode_end'], '%H:%M:%S:%f')])
                 
-                if (mouth_pict and ((item['tier'] == mouth['1']) or (item['tier'] == mouth['2']))):
+                if (mouthings == True and ((item['tier'] == mouth['1']) or (item['tier'] == mouth['2']))):
                     mouth_words.append([item['value'], datetime.strptime(item['timecode_start'], '%H:%M:%S:%f') , datetime.strptime(item['timecode_end'], '%H:%M:%S:%f')])
         except KeyError:
             error_list.append(filename)
@@ -151,7 +160,7 @@ def main(args):
 
         wordcounter = 0
         sentcounter = 0
-        mouthcounter=0
+        mouthcounter = 0
         ger_sents_only = []
         mouth_sents = []
         sign_sents = []
@@ -165,18 +174,40 @@ def main(args):
             new_mouth_sent=""
             while (wordcounter < len(sign_words)) and (sign_words[wordcounter][1] >= sent[1]) and (sign_words[wordcounter][2] <= sent[2]):
                 new_sign_sent += sign_words[wordcounter][0] + " "
-                try:
-                    if ((mouth_words[mouthcounter][1]>=sign_words[wordcounter][1]) and (mouth_words[mouthcounter][2]<=sign_words[wordcounter][2])) or (mouth_words[mouthcounter][1]<=sign_words[wordcounter][1]):
-                        new_mouth_sent += mouth_words[mouthcounter][0] + " "
-                        mouthcounter += 1
+                
+                
 
+                if mouthings==True:
                     
-                except IndexError:
-                    pass
+                    #check if any mouthings are available
+                    if (mouthcounter == len(mouth_words) -2 ):
+                            new_mouth_sent += "<empty> "
+                            continue
+
+                    if (((mouth_words[mouthcounter][1] >= sign_words[wordcounter][1]) and (mouth_words[mouthcounter][1] <= sign_words[wordcounter][2]))) and ((mouth_words[mouthcounter + 1][1] < sign_words[wordcounter][2]) and (mouth_words[mouthcounter + 1][1] <= sign_words[wordcounter][2])):
+                    
+                        
+
+                        if (mouth_words[mouthcounter][1] - sign_words[wordcounter][1] > sign_words[wordcounter][2] - mouth_words[mouthcounter + 1][1]):
+                            new_mouth_sent += (mouth_words[mouthcounter][0] + ' ')
+                        
+                        else:
+                            new_mouth_sent += (mouth_words[mouthcounter + 1][0] + ' ')
+
+                        
+                        mouthcounter += 1
+                
+                    elif ((mouth_words[mouthcounter][1] >= sign_words[wordcounter][1]) and (mouth_words[mouthcounter][1] <= sign_words[wordcounter][2])):
+                        new_mouth_sent += (mouth_words[mouthcounter][0] + ' ')
+
+                        if (mouth_words[mouthcounter][2] <= sign_words[wordcounter][2]):
+                            mouthcounter += 1
+                
+                    else:
+                        new_mouth_sent += '<empty> '
                 wordcounter += 1
 
-            while (len(new_mouth_sent.split()) < len(new_sign_sent.split())):
-                new_mouth_sent += "<empty> "
+
             #There are small mismatches in the length between English and German Translation:
             if en and sentences and (new_sign_sent != ""):
                 try:
@@ -201,7 +232,7 @@ def main(args):
         
         
         if sentences==True:
-            if mouth_pict==True:
+            if mouthings==True:
                 with open(os.fsdecode(os.path.join(output_dir + '/' + name + '.mouthings')), 'a') as outfile:
                     outfile.write("\n".join(map(str, mouth_sents)))
                     outfile.write("\n")
