@@ -48,7 +48,8 @@ def main(args):
     mouthings = args.mouthings
     files = []
     error_list = [] #list of files where an error occured
-    filecounter = 0
+    line_counter = 1 #Variable for debugging errors that only occur in specific lines
+
 
 
     if testing == True:
@@ -59,7 +60,6 @@ def main(args):
     
     print('Extract data...')
     for file in tqdm(files):
-        filecounter +=1
 
         glosses = defaultdict(str) #dictionary with the gloss id as key, and the corresponding gloss as value
         token_id = defaultdict(str) # defaultdict with the token id as key, and the corresponding gloss id as value
@@ -168,11 +168,25 @@ def main(args):
             new_sign_sent = ""
             new_mouth_sent=""
             
+            #Breakpoint for debugging: line_counter should have the same number as a problematic line in the output documents
+            #if line_counter == 1165:
+                #breakpoint()
+
+            
+
+            
             while (wordcounter < len(sign_words)) and (sign_words[wordcounter][1] >= sent[1]) and (sign_words[wordcounter][2] <= sent[2]):
                 new_sign_sent += sign_words[wordcounter][0] + " "
                 
+                if (len(mouth_words[mouthcounter][0].split()) > 1):
+                    mouth_words[mouthcounter][0] = mouth_words[mouthcounter][0].replace(" ", "-")
+                
                 if mouthings==True:
                     
+                    #check if mouthings are already as long as sign sentence
+                    if (len(new_sign_sent.split()) == len(new_mouth_sent.split())):
+                        continue
+
                     #check if any mouthings are available
                     if (mouthcounter == len(mouth_words) -1):
                             new_mouth_sent += "<empty> "
@@ -199,8 +213,7 @@ def main(args):
                             mouthcounter += 1
                 
                     else:
-                        if (len(new_sign_sent.split()) > len(new_mouth_sent.split())):
-                             new_mouth_sent += '<empty> '
+                        new_mouth_sent += '<empty> '
                 wordcounter += 1
 
 
@@ -225,8 +238,8 @@ def main(args):
                 ger_sents_only.append(sent[0])
                 sign_sents.append(new_sign_sent)
                 mouth_sents.append(new_mouth_sent)
-        
-        
+                line_counter += 1 #Variable for debugging
+
         if sentences==True:
             if mouthings==True:
                 with open(os.fsdecode(os.path.join(output_dir + '/' + name + '.mouthings')), 'a') as outfile:
