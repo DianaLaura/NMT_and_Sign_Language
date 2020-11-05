@@ -27,6 +27,7 @@ OMP_NUM_THREADS=$num_threads python -m sockeye.train \
 			--prepared-data_source $train_data\
 			-vs $data/dev.preprocessed.$src \
       -vt $data/dev.preprocessed.$trg \
+      --validation-source-factors $data/dev.preprocessed.mouthings \
       --source-factors-num-embed 512 \
       --max-updates 1001000 \
       --seed=1 \
