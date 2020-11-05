@@ -24,7 +24,7 @@ model_name=source_factors_concat
 #-t $data/train.truecased.$trg \
 OMP_NUM_THREADS=$num_threads python -m sockeye.train \
       -o $1/models/$model_name  \
-			--prepared-data $train_data\
+			--prepared-data_source $train_data\
 			-vs $data/dev.preprocessed.$src \
       -vt $data/dev.preprocessed.$trg \
       --source-factors-num-embed 512 \
