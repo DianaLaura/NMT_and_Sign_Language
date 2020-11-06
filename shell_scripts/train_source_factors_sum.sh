@@ -6,7 +6,7 @@ scripts=`dirname "$0"`
 src=sign
 trg=de
 data=$1/Extracted_data
-train_data=$1/prepared_data/data.version
+train_data=$1/prepared_data_source/data.version
 base=$scripts/..
 #export CUDA_VISIBLE_DEVICES=2
 mkdir -p $1/models
@@ -24,7 +24,7 @@ model_name=source_factors_sum
 #-t $data/train.truecased.$trg \
 OMP_NUM_THREADS=$num_threads python -m sockeye.train \
       -o $1/models/$model_name  \
-			--prepared-data_source $train_data\
+			--prepared-data $train_data\
 			-vs $data/dev.preprocessed.$src \
       -vt $data/dev.preprocessed.$trg \
       --validation-source-factors $data/dev.preprocessed.mouthings \
