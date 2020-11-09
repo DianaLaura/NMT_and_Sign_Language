@@ -23,15 +23,15 @@ class Test_Align_sign_spoken_sentences(unittest.TestCase):
 
     def setUp(self):
         
-        infile = open ('/Users/dianaenggist/Documents/NT_sign_language/Extracted_data/train.de', 'r', encoding='utf8')
+        infile = open ('/Your_path_here/train.de', 'r', encoding='utf8')
         self.train_de = infile.readlines()
         infile.close()
 
-        infile = open ('/Users/dianaenggist/Documents/NT_sign_language/Extracted_data/train.sign', 'r', encoding='utf8')
+        infile = open ('/Your_path_here/train.sign', 'r', encoding='utf8')
         self.train_sign = infile.readlines()
         infile.close()
 
-        infile = open ('/Users/dianaenggist/Documents/NT_sign_language/Extracted_data/train.mouthings', 'r', encoding='utf8')
+        infile = open ('/Your_path_here/train.mouthings', 'r', encoding='utf8')
         self.train_mouthings = infile.readlines()
         infile.close()
 
@@ -42,15 +42,15 @@ class Test_Align_sign_spoken_sentences(unittest.TestCase):
             self.train_line_lengths_mouthings.append(len(self.train_mouthings[1].split()))
     
 
-        infile = open ('/Users/dianaenggist/Documents/NT_sign_language/Extracted_data/dev.de', 'r', encoding='utf8')
+        infile = open ('/Your_path_here/dev.de', 'r', encoding='utf8')
         self.dev_de = infile.readlines()
         infile.close()
 
-        infile = open ('/Users/dianaenggist/Documents/NT_sign_language/Extracted_data/dev.sign', 'r', encoding='utf8')
+        infile = open ('/Your_path_here/dev.sign', 'r', encoding='utf8')
         self.dev_sign = infile.readlines()
         infile.close()
 
-        infile = open ('/Users/dianaenggist/Documents/NT_sign_language/Extracted_data/dev.mouthings', 'r', encoding='utf8')
+        infile = open ('/Your_path_here/dev.mouthings', 'r', encoding='utf8')
         self.dev_mouthings = infile.readlines()
         infile.close()
 
@@ -60,15 +60,15 @@ class Test_Align_sign_spoken_sentences(unittest.TestCase):
             self.dev_line_lengths_sign.append(len(self.dev_sign[1].split()))
             self.dev_line_lengths_mouthings.append(len(self.dev_mouthings[1].split()))
     
-        infile = open ('/Users/dianaenggist/Documents/NT_sign_language/Extracted_data/test.de', 'r', encoding='utf8')
+        infile = open ('/Your_path_here/test.de', 'r', encoding='utf8')
         self.test_de = infile.readlines()
         infile.close()
 
-        infile = open ('/Users/dianaenggist/Documents/NT_sign_language/Extracted_data/test.sign', 'r', encoding='utf8')
+        infile = open ('/Your_path_here/test.sign', 'r', encoding='utf8')
         self.test_sign = infile.readlines()
         infile.close()
 
-        infile = open ('/Users/dianaenggist/Documents/NT_sign_language/Extracted_data/test.mouthings', 'r', encoding='utf8')
+        infile = open ('/Your_path_here/test.mouthings', 'r', encoding='utf8')
         self.test_mouthings = infile.readlines()
         infile.close()
 

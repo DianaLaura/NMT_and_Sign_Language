@@ -10,15 +10,15 @@ class Test_Align_sign_spoken_sentences_timestamps(unittest.TestCase):
 
     def setUp(self):
         
-        infile = open ('/Users/dianaenggist/Documents/NT_sign_language/Extracted_data_timestamps/full_set.de', 'r', encoding='utf8')
+        infile = open ('/Your_path_here/full_set.de', 'r', encoding='utf8')
         self.de = infile.readlines()
         infile.close()
         
-        infile = open ('/Users/dianaenggist/Documents/NT_sign_language/Extracted_data_timestamps/full_set.sign', 'r', encoding='utf8')
+        infile = open ('/Your_path_here/full_set.sign', 'r', encoding='utf8')
         self.sign = infile.readlines()
         infile.close()
 
-        infile = open ('/Users/dianaenggist/Documents/NT_sign_language/Extracted_data_timestamps/full_set.time', 'r', encoding='utf8')
+        infile = open ('/Your_path_here/full_set.time', 'r', encoding='utf8')
         self.timestamps = infile.readlines()
         infile.close()
 

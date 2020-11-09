@@ -10,15 +10,15 @@ class Test_Align_sign_spoken_sentences(unittest.TestCase):
 
     def setUp(self):
         
-        infile = open ('/Users/dianaenggist/Documents/NT_sign_language/Extracted_data/full_set.de', 'r', encoding='utf8')
+        infile = open ('/Your_path_here/full_set.de', 'r', encoding='utf8')
         self.de = infile.readlines()
         infile.close()
         
-        infile = open ('/Users/dianaenggist/Documents/NT_sign_language/Extracted_data/full_set.sign', 'r', encoding='utf8')
+        infile = open ('/Your_path_here/full_set.sign', 'r', encoding='utf8')
         self.sign = infile.readlines()
         infile.close()
 
-        infile = open ('/Users/dianaenggist/Documents/NT_sign_language/Extracted_data/full_set.mouthings', 'r', encoding='utf8')
+        infile = open ('/Your_path_here/full_set.mouthings', 'r', encoding='utf8')
         self.mouthings = infile.readlines()
         infile.close()
 
