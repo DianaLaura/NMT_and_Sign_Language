@@ -49,7 +49,7 @@ OMP_NUM_THREADS=$num_threads python -m sockeye.train \
       --transformer-dropout-act=0.5\
       --transformer-dropout-prepost=0.5 \
       --transformer-positional-embedding-type fixed \
-      --label-smoothing 0.2 \
+      --label-smoothing 0.1 \
       --weight-tying-type=trg_softmax \
       --num-embed 512:512 \
       --num-words 50000:50000 \
