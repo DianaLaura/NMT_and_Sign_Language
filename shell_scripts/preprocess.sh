@@ -4,12 +4,12 @@
 scripts=`dirname "$0"`
 base=$scripts/..
 
-mkdir -p $storage/shared_models
-src=$1
-trg=$2
-spoken=$3 #file ending of spoken language
-storage=$4
-data=`echo $storage/Extracted_data`
+mkdir -p $storage/shared_models_source
+src=sign
+trg=de
+spoken=de #file ending of spoken language
+storage=$1
+data=`echo $storage/Extracted_data_timestamps`
 bpe_num_operations=2000
 bpe_vocab_threshold=10
 
@@ -41,35 +41,35 @@ done
 
 # learn truecase model on train for spoken language
 
-$MOSES/recaser/train-truecaser.perl -corpus $data/train.tokenized.$spoken -model $storage/shared_models/truecase-model.$spoken
+$MOSES/recaser/train-truecaser.perl -corpus $data/train.tokenized.$spoken -model $storage/shared_models_source/truecase-model.$spoken
 
 # apply truecase model to train, test and dev
 
 for corpus in train; do
-	$MOSES/recaser/truecase.perl -model $storage/shared_models/truecase-model.$spoken < $data/$corpus.tokenized.$spoken > $data/$corpus.truecased.$spoken
+	$MOSES/recaser/truecase.perl -model $storage/shared_models_source/truecase-model.$spoken < $data/$corpus.tokenized.$spoken > $data/$corpus.truecased.$spoken
 done
 
 for corpus in dev test; do
-	$MOSES/recaser/truecase.perl -model $storage/shared_models/truecase-model.$spoken < $data/$corpus.tokenized.$spoken > $data/$corpus.truecased.$spoken
+	$MOSES/recaser/truecase.perl -model $storage/shared_models_source/truecase-model.$spoken < $data/$corpus.tokenized.$spoken > $data/$corpus.truecased.$spoken
 done
 
 #train BPE model
 subword-nmt learn-bpe -i $data/train.truecased.$spoken \
-	-s $bpe_num_operations -o $storage/shared_models/$spoken.bpe
+	-s $bpe_num_operations -o $storage/shared_models_source/$spoken.bpe
 
 # apply BPE model to train, test and dev
 for corpus in train; do
-	subword-nmt apply-bpe -c $storage/shared_models/$spoken.bpe --vocabulary-threshold $bpe_vocab_threshold < $data/$corpus.truecased.$spoken > $data/$corpus.bpe.$spoken
+	subword-nmt apply-bpe -c $storage/shared_models_source/$spoken.bpe --vocabulary-threshold $bpe_vocab_threshold < $data/$corpus.truecased.$spoken > $data/$corpus.bpe.$spoken
 	cat $data/$corpus.sign > $data/$corpus.preprocessed.sign
 	cat $data/$corpus.bpe.$spoken > $data/$corpus.preprocessed.$spoken
-	cat $data/$corpus.mouthings > $data/$corpus.preprocessed.mouthings
+	cat $data/$corpus.time > $data/$corpus.preprocessed.time
 done
 
 for corpus in  dev test; do
-	subword-nmt apply-bpe -c $storage/shared_models/$spoken.bpe --vocabulary-threshold $bpe_vocab_threshold < $data/$corpus.truecased.$spoken > $data/$corpus.bpe.$spoken
+	subword-nmt apply-bpe -c $storage/shared_models_source/$spoken.bpe --vocabulary-threshold $bpe_vocab_threshold < $data/$corpus.truecased.$spoken > $data/$corpus.bpe.$spoken
 	cat $data/$corpus.sign > $data/$corpus.preprocessed.sign
 	cat $data/$corpus.bpe.$spoken > $data/$corpus.preprocessed.$spoken
-	cat $data/$corpus.mouthings > $data/$corpus.preprocessed.mouthings
+	cat $data/$corpus.time > $data/$corpus.preprocessed.time
 done
 
 # sanity checks
